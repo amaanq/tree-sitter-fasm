@@ -1,0 +1,709 @@
+===================
+Symbol Definitions
+===================
+
+a = 1
+b := 2
+c =: 3
+restore c
+
+---
+
+(source_file
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (number))))
+  (symbol_definition
+    (constant_definition
+      (simple_identifier)
+      (expression
+        (number))))
+  (symbol_definition
+    (stacked_definition
+      (simple_identifier)
+      (expression
+        (number))))
+  (assembly_directive
+    (simple_identifier)))
+
+===================
+Labels & Addresses
+===================
+
+start:
+    db 'Hello'
+end:
+size = end - start
+
+---
+
+(source_file
+  (label_definition
+    (simple_identifier))
+  (data_directive
+    (data_arguments
+      (string
+        (string_content))))
+  (label_definition
+    (simple_identifier))
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (binary_expression
+          (expression
+            (simple_identifier))
+          (expression
+            (simple_identifier)))))))
+
+===================
+Numbers
+===================
+
+decimal = 123
+hex1 = 0x1A2B
+hex2 = $FACE
+hex3 = 0ABCDh
+binary = 11010011b
+octal = 777o
+float = 3.14159
+
+---
+
+(source_file
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (number))))
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (number))))
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (number))))
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (number))))
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (number))))
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (number))))
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (number)))))
+
+===================
+Data Directives
+===================
+
+msg db 'Hello, World!', 0
+buffer rb 256
+values dw 100, 200, 300
+table dd 4 dup (0)
+
+---
+
+(source_file
+  (labeled_instruction
+    (simple_identifier)
+    (data_directive
+      (data_arguments
+        (string
+          (string_content))
+        (expression
+          (number)))))
+  (simple_instruction
+    (simple_identifier))
+  (data_directive
+    (expression
+      (number)))
+  (simple_instruction
+    (simple_identifier))
+  (data_directive
+    (data_arguments
+      (expression
+        (number))
+      (expression
+        (number))
+      (expression
+        (number))))
+  (labeled_instruction
+    (simple_identifier)
+    (data_directive
+      (data_arguments
+        (dup_expression
+          (expression
+            (number))
+          (data_arguments
+            (expression
+              (number))))))))
+
+===================
+Expressions
+===================
+
+x = 10
+y = x * 2 + 5
+z = (y shl 2) and 0xFF
+result = bsr z
+
+---
+
+(source_file
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (number))))
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (binary_expression
+          (expression
+            (binary_expression
+              (expression
+                (simple_identifier))
+              (expression
+                (number))))
+          (expression
+            (number))))))
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (binary_expression
+          (expression
+            (parenthesized_expression
+              (expression
+                (binary_expression
+                  (expression
+                    (simple_identifier))
+                  (expression
+                    (number))))))
+          (expression
+            (number))))))
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (unary_expression
+          (expression
+            (simple_identifier)))))))
+
+===================
+Conditionals
+===================
+
+DEBUG = 1
+if DEBUG
+    db 'Debug mode'
+else
+    db 'Release mode'
+end if
+
+---
+
+(source_file
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (number))))
+  (control_directive
+    (if_directive
+      (logical_expression
+        (logical_primary
+          (expression
+            (simple_identifier))))
+      (data_directive
+        (data_arguments
+          (string
+            (string_content))))
+      (else_clause
+        (data_directive
+          (data_arguments
+            (string
+              (string_content))))))))
+
+====================
+Loops
+====================
+
+repeat 16
+    db %
+end repeat
+
+while x < 100
+    x = x + 1
+end while
+
+iterate value, 1,2,3,4,5
+    dw value
+end iterate
+
+---
+
+(source_file
+  (control_directive
+    (repeat_directive
+      (expression
+        (number))
+      (data_directive
+        (data_arguments
+          (expression
+            (repeat_parameter))))))
+  (control_directive
+    (repeat_directive
+      (logical_expression
+        (logical_primary
+          (comparison
+            (expression
+              (simple_identifier))
+            (expression
+              (number)))))
+      (symbol_definition
+        (variable_definition
+          (simple_identifier)
+          (expression
+            (binary_expression
+              (expression
+                (simple_identifier))
+              (expression
+                (number))))))))
+  (control_directive
+    (repeat_directive
+      (iterate_parameters
+        (simple_identifier)
+        (iterate_value
+          (expression
+            (number)))
+        (iterate_value
+          (expression
+            (number)))
+        (iterate_value
+          (expression
+            (number)))
+        (iterate_value
+          (expression
+            (number)))
+        (iterate_value
+          (expression
+            (number))))
+      (data_directive
+        (data_arguments
+          (expression
+            (simple_identifier)))))))
+
+====================
+Macros
+====================
+
+macro greet name
+    db 'Hello, ', name, '!', 0
+end macro
+
+greet 'World'
+
+---
+
+(source_file
+  (macro_directive
+    (macro_definition
+      (simple_identifier)
+      (macro_parameters
+        (macro_parameter
+          (simple_identifier)))
+      (data_directive
+        (data_arguments
+          (string
+            (string_content))
+          (expression
+            (simple_identifier))
+          (string
+            (string_content))
+          (expression
+            (number))))))
+  (simple_instruction
+    (simple_identifier)
+    (tokens
+      (string
+        (string_content)))))
+
+====================
+Structures
+====================
+
+struc POINT
+    .x dd ?
+    .y dd ?
+end struc
+
+origin POINT
+
+---
+
+(source_file
+  (macro_directive
+    (struc_definition
+      (simple_identifier)
+      (labeled_instruction
+        (relative_identifier)
+        (data_directive
+          (data_arguments)))
+      (labeled_instruction
+        (relative_identifier)
+        (data_directive
+          (data_arguments)))))
+  (simple_instruction
+    (simple_identifier)
+    (tokens
+      (simple_identifier))))
+
+====================
+Pattern Matching
+====================
+
+macro parse cmd
+    match op src=,dst, cmd
+        db op, src, dst
+    else match op arg, cmd
+        db op, arg
+    end match
+end macro
+
+---
+
+(source_file
+  (ERROR
+    (simple_identifier)
+    (macro_parameters
+      (macro_parameter
+        (simple_identifier)))
+    (match_pattern
+      (pattern_element
+        (simple_identifier))
+      (pattern_element
+        (simple_identifier))
+      (pattern_element
+        (literal_pattern
+          (special_char)))
+      (pattern_element
+        (simple_identifier)))
+    (tokens
+      (simple_identifier))
+    (data_directive
+      (data_arguments
+        (expression
+          (simple_identifier))
+        (expression
+          (simple_identifier))
+        (expression
+          (simple_identifier))))
+    (else_clause
+      (control_directive
+        (match_directive
+          (match_pattern
+            (pattern_element
+              (simple_identifier))
+            (pattern_element
+              (simple_identifier)))
+          (tokens
+            (simple_identifier))
+          (data_directive
+            (data_arguments
+              (expression
+                (simple_identifier))
+              (expression
+                (simple_identifier)))))))))
+
+====================
+Namespaces
+====================
+
+
+namespace graphics
+    width = 800
+    height = 600
+    namespace colors
+        red = 0xFF0000
+        green = 0x00FF00
+    end namespace
+end namespace
+
+---
+
+(source_file
+  (output_directive
+    (namespace_block
+      (simple_identifier)
+      (symbol_definition
+        (variable_definition
+          (simple_identifier)
+          (expression
+            (number))))
+      (symbol_definition
+        (variable_definition
+          (simple_identifier)
+          (expression
+            (number))))
+      (output_directive
+        (namespace_block
+          (simple_identifier)
+          (symbol_definition
+            (variable_definition
+              (simple_identifier)
+              (expression
+                (number))))
+          (symbol_definition
+            (variable_definition
+              (simple_identifier)
+              (expression
+                (number)))))))))
+
+====================
+Virtual Blocks
+====================
+
+virtual at 0
+    header:
+    .signature dd ?
+    .version dw ?
+end virtual
+
+load sig:dword from header.signature
+
+---
+
+(source_file
+  (output_directive
+    (virtual_block
+      (expression
+        (number))
+      (label_definition
+        (simple_identifier))
+      (labeled_instruction
+        (relative_identifier)
+        (data_directive
+          (data_arguments)))
+      (labeled_instruction
+        (relative_identifier)
+        (data_directive
+          (data_arguments)))))
+  (output_directive
+    (load_instruction
+      (simple_identifier)
+      (simple_identifier)
+      (expression
+        (namespaced_identifier
+          (simple_identifier)
+          (simple_identifier))))))
+
+====================
+CALM Instructions
+====================
+
+calminstruction test value*
+    compute value, value and 0xFF
+    emit 1, value
+end calminstruction
+
+---
+
+(source_file
+  (calm_directive
+    (calm_definition
+      (simple_identifier)
+      (macro_parameters
+        (macro_parameter
+          (simple_identifier)))
+      (calm_line
+        (calm_command
+          (simple_identifier)
+          (expression
+            (binary_expression
+              (expression
+                (simple_identifier))
+              (expression
+                (number))))))
+      (calm_line
+        (calm_command
+          (expression
+            (number))
+          (expression
+            (simple_identifier)))))))
+
+====================
+Complex Instructions
+====================
+
+mask = not 0xFF
+shifted = 100 shl 3
+divided = 1000 / 7
+remainder = 1000 mod 7
+
+---
+
+(source_file
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (unary_expression
+          (expression
+            (number))))))
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (binary_expression
+          (expression
+            (number))
+          (expression
+            (number))))))
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (binary_expression
+          (expression
+            (number))
+          (expression
+            (number))))))
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (binary_expression
+          (expression
+            (number))
+          (expression
+            (number)))))))
+
+====================
+String Operations
+====================
+
+text = 'Hello'
+len = lengthof text
+str = string 12345
+
+---
+
+(source_file
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (string
+          (string_content)))))
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (unary_expression
+          (expression
+            (simple_identifier))))))
+  (symbol_definition
+    (variable_definition
+      (simple_identifier)
+      (expression
+        (unary_expression
+          (expression
+            (number)))))))
+
+====================
+File Inclusion
+====================
+
+include 'constants.inc'
+format binary as 'com'
+
+---
+
+(source_file
+  (assembly_directive
+    (include_directive
+      (string
+        (string_content))))
+  (assembly_directive
+    (simple_identifier)
+    (string
+      (string_content))))
+
+====================
+Areas and Sections
+====================
+
+org 100h
+section 200h
+code_start:
+    db 'code here'
+
+---
+
+(source_file
+  (assembly_directive
+    (expression
+      (number)))
+  (assembly_directive
+    (expression
+      (number)))
+  (label_definition
+    (simple_identifier))
+  (data_directive
+    (data_arguments
+      (string
+        (string_content)))))
+
+====================
+Load and Store
+====================
+
+data::
+db 'test'
+load byte1:byte from data:0
+store 'X':byte at data:0
+
+---
+
+(source_file
+  (area_label_definition
+    (simple_identifier))
+  (data_directive
+    (data_arguments
+      (string
+        (string_content))))
+  (output_directive
+    (load_instruction
+      (simple_identifier)
+      (simple_identifier)
+      (simple_identifier)
+      (expression
+        (number))))
+  (output_directive
+    (store_instruction
+      (expression
+        (string
+          (string_content)))
+      (simple_identifier)
+      (simple_identifier)
+      (expression
+        (number)))))
